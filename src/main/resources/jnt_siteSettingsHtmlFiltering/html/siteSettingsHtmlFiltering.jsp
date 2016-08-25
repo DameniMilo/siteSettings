@@ -38,7 +38,7 @@
             if (match == null || match[0] != val) {
                 $.snackbar({
                     content: "${i18nInvalidTag}",
-                    style: "alert-snackbar"
+                    style: "error"
                 });
                 return;
             }
@@ -72,7 +72,7 @@
                     if (response.warn != undefined) {
                         $.snackbar({
                             content: response.warn,
-                            style: "alert-snackbar"
+                            style: "error"
                         });
                     } else {
                         $.snackbar({
