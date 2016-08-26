@@ -17,9 +17,14 @@ function updateSiteWcagCompliance(btn) {
         dataType: "json",
         success: function(response) {
             if (response.warn != undefined) {
-                alert(response.warn);
+                $.snackbar({
+                    content: response.warn,
+                    style: "warning"
+                });
             } else {
-            	alert('${i18nSaved}');
+                $.snackbar({
+                    content: "${i18nSaved}",
+                });
             }
             btn.removeAttr('disabled');
         },
@@ -34,15 +39,30 @@ function updateSiteWcagCompliance(btn) {
 
 <c:set var="propActivated" value="${site.properties['j:wcagCompliance']}"/>
 
-<h2><fmt:message key="label.htmlSettings.wcagCompliance"/> - ${fn:escapeXml(site.displayableName)}</h2>
-<p><fmt:message key="label.htmlSettings.wcagCompliance.description"/>:</p>
+<div class="page-header">
+    <h2><fmt:message key="label.htmlSettings.wcagCompliance"/> - ${fn:escapeXml(site.displayableName)}</h2>
+</div>
 
-<form id="updateSiteForm" action="<c:url value='${url.base}${renderContext.mainResource.node.resolveSite.path}'/>" method="post">
-    <input type="hidden" name="jcrMethodToCall" value="put"/>
-    <input type="hidden" name="jcr:mixinTypes" value="jmix:htmlSettings"/>
 
- <label for="activateWcagCompliance" class="checkbox">
-    <input type="checkbox" name="activateWcagCompliance" id="activateWcagCompliance" onclick="updateSiteWcagCompliance($(this)); return true;"${not empty propActivated && propActivated.boolean ? ' checked="checked"' : ''}/>
-    <fmt:message key="label.active"/>
-</label>
-</form>
+<div class="row">
+    <div class="col-md-offset-3 col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <fmt:message key="label.htmlSettings.wcagCompliance.description"/>
+            </div>
+            <div class="panel-body">
+                <form id="updateSiteForm" action="<c:url value='${url.base}${renderContext.mainResource.node.resolveSite.path}'/>" method="post">
+                    <input type="hidden" name="jcrMethodToCall" value="put"/>
+                    <input type="hidden" name="jcr:mixinTypes" value="jmix:htmlSettings"/>
+
+                    <div class="togglebutton">
+                        <label for="activateWcagCompliance">
+                            <input type="checkbox" name="activateWcagCompliance" id="activateWcagCompliance" onclick="updateSiteWcagCompliance($(this)); return true;"${not empty propActivated && propActivated.boolean ? ' checked="checked"' : ''}/>
+                            <fmt:message key="label.active"/>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

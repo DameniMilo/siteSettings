@@ -159,6 +159,7 @@
                                j:priority="100"
                                j:requiredPermissionNames="siteAdminWcagCompliance"
                                j:titleKey="siteSettings.label.wcagCompliance"
+                               j:view="siteSettingsBootstrap3GoogleMaterialStyle"
                                jcr:mixinTypes="jmix:rbTitle"
                                jcr:primaryType="jnt:contentTemplate">
                             <pagecontent jcr:primaryType="jnt:contentList">
