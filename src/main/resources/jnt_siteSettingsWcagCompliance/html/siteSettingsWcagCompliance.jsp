@@ -47,10 +47,8 @@ function updateSiteWcagCompliance(btn) {
 <div class="row">
     <div class="col-md-offset-3 col-md-6">
         <div class="panel panel-default">
-            <div class="panel-heading">
-                <fmt:message key="label.htmlSettings.wcagCompliance.description"/>
-            </div>
             <div class="panel-body">
+                <p><fmt:message key="label.htmlSettings.wcagCompliance.description"/></p>
                 <form id="updateSiteForm" action="<c:url value='${url.base}${renderContext.mainResource.node.resolveSite.path}'/>" method="post">
                     <input type="hidden" name="jcrMethodToCall" value="put"/>
                     <input type="hidden" name="jcr:mixinTypes" value="jmix:htmlSettings"/>
