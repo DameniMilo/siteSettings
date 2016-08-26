@@ -23,101 +23,165 @@
 <c:set var="prefix" value="u:"/>
 <c:set var="displayUsers" value="selected"/>
 <c:set var="userDisplayLimit" value="${siteSettingsProperties.userDisplayLimit}"/>
-<%@include file="common/editMembersHead.jspf" %>
 
-<div class="box-1">
-    <form class="form-inline " action="${flowExecutionUrl}" id="searchForm" method="post">
-        <input type="hidden" id="searchIn" name="searchIn" value="allProps"/>
-        <fieldset>
-            <h2><fmt:message key="label.search"/></h2>
+<div class="page-header">
+    <h2><fmt:message key="label.group"/>: ${fn:escapeXml(user:displayName(group))}</h2>
+</div>
 
-            <div class="input-append">
-                <label style="display: none;" for="searchString"><fmt:message key="label.search"/></label>
-                <input class="span6" type="text" id="searchString" name="searchString"
-                       value='${memberSearchCriteria.searchString}'
-                       onkeydown="if (event.keyCode == 13) submitForm('search');"/>
-                <button class="btn btn-primary" type="submit" name="_eventId_search">
-                    <i class="icon-search icon-white"></i>
-                    &nbsp;<fmt:message key='label.search'/>
-                </button>
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        <%@include file="common/editMembersHead.jspf" %>
+
+        <form class="form-inline " action="${flowExecutionUrl}" id="searchForm" method="post">
+            <input type="hidden" id="searchIn" name="searchIn" value="allProps"/>
+
+            <h4><fmt:message key="label.search"/></h4>
+
+            <div class="form-group form-group-sm label-floating">
+                <label class="control-label" for="searchString">
+                    <fmt:message key="label.search"/>
+                </label>
+                <div class="input-group">
+                    <input class="form-control" type="text" id="searchString" name="searchString"
+                           value='${memberSearchCriteria.searchString}'
+                           onkeydown="if (event.keyCode == 13) submitForm('search');"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary btn-fab btn-fab-xs" type="submit" name="_eventId_search">
+                            <i class="material-icons">search</i>
+                        </button>
+                    </span>
+                </div>
             </div>
-            <c:if test="${multipleProvidersAvailable}">
-                <br/>
-                <label for="storedOn"><span class="badge badge-info"><fmt:message key="label.on"/></span></label>
-                <input type="radio" name="storedOn" value="everywhere"
-                    ${empty memberSearchCriteria.storedOn || memberSearchCriteria.storedOn == 'everywhere' ? ' checked="checked" ' : ''}
-                       onclick="$('.provCheck').attr('disabled',true);">&nbsp;<fmt:message
-                    key="label.everyWhere"/>
 
-                <input type="radio" name="storedOn" value="providers"
-                    ${memberSearchCriteria.storedOn == 'providers' ? 'checked="checked"' : ''}
-                       onclick="$('.provCheck').removeAttr('disabled');"/>&nbsp;<fmt:message
-                    key="label.providers"/>
+
+            <div class="form-group form-group-sm">
+                <span><fmt:message key="label.on"/></span>
+                <div class="radio">
+                    <label class="radio-inline">
+                        <input type="radio" name="storedOn" value="everywhere">
+                        <fmt:message key="label.everyWhere"/>
+                    </label>
+                </div>
+
+                <div class="radio">
+                    <label class="radio-inline">
+                        <input type="radio" name="storedOn" value="providers">
+                        <fmt:message key="label.providers"/>
+                    </label>
+                </div>
+            </div>
+
+            <c:if test="${multipleProvidersAvailable}">
+                <div class="form-group form-group-sm">
+                    <label for="storedOn">
+                        <span class="label label-info"><fmt:message key="label.on"/></span>
+                    </label>
+                    <div class="radio">
+                        <label class="radio-inline">
+                            <input type="radio" name="storedOn" value="everywhere"
+                                ${empty memberSearchCriteria.storedOn || memberSearchCriteria.storedOn == 'everywhere' ? ' checked="checked" ' : ''}
+                                   onclick="$('.provCheck').attr('disabled',true);">
+                            <fmt:message key="label.everyWhere"/>
+                        </label>
+                    </div>
+
+                    <div class="radio">
+                        <label class="radio-inline">
+                            <input type="radio" name="storedOn" value="providers"
+                                ${memberSearchCriteria.storedOn == 'providers' ? 'checked="checked"' : ''}
+                                   onclick="$('.provCheck').removeAttr('disabled');"/>
+                            <fmt:message key="label.providers"/>
+                        </label>
+                    </div>
+                </div>
 
                 <c:forEach items="${providers}" var="curProvider">
-                    <input type="checkbox" class="provCheck" name="providers" value="${curProvider}"
-                        ${memberSearchCriteria.storedOn != 'providers' ? 'disabled="disabled"' : ''}
-                        ${empty memberSearchCriteria.providers || functions:contains(memberSearchCriteria.providers, curProvider) ? 'checked="checked"' : ''}/>
-                    <fmt:message var="i18nProviderLabel" key="providers.${curProvider}.label"/>
-                    ${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? curProvider : i18nProviderLabel)}
+                    <div class="form-group form-group-sm">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" class="provCheck" name="providers" value="${curProvider}"
+                                    ${memberSearchCriteria.storedOn != 'providers' ? 'disabled="disabled"' : ''}
+                                    ${empty memberSearchCriteria.providers || functions:contains(memberSearchCriteria.providers, curProvider) ? 'checked="checked"' : ''}/>
+                                    <fmt:message var="i18nProviderLabel" key="providers.${curProvider}.label"/>
+                                    ${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? curProvider : i18nProviderLabel)}
+                            </label>
+                        </div>
+                    </div>
                 </c:forEach>
             </c:if>
-        </fieldset>
-    </form>
-</div>
+        </form>
 
-</div>
+        <form action="${flowExecutionUrl}" method="post" id="saveForm">
+            <input id="addedMembers" type="hidden" name="addedMembers"/>
+            <input id="removedMembers" type="hidden" name="removedMembers"/>
+            <button class="btn btn-primary btn-sm pull-right" type="submit" name="_eventId_save" id="saveButton" disabled="disabled">
+                <i class="material-icons">save</i>
+                <fmt:message key="label.save"/>
+            </button>
+        </form>
+        <c:set var="principalsCount" value="${fn:length(principals)}"/>
+        <c:set var="principalsFound" value="${principalsCount > 0}"/>
 
-<form action="${flowExecutionUrl}" method="post" id="saveForm">
-    <input id="addedMembers" type="hidden" name="addedMembers"/>
-    <input id="removedMembers" type="hidden" name="removedMembers"/>
-    <button class="btn btn-primary" type="submit" name="_eventId_save" id="saveButton" disabled="disabled">
-        <i class="icon-ok icon-white"></i>
-        &nbsp;<fmt:message key="label.save"/>
-    </button>
-</form>
+        <c:if test="${principalsCount > userDisplayLimit}">
+            <div class="alert alert-info">
+                <fmt:message key="siteSettings.users.found">
+                    <fmt:param value="${principalsCount}"/>
+                    <fmt:param value="${userDisplayLimit}"/>
+                </fmt:message>
+            </div>
+        </c:if>
 
-<div>
-    <c:set var="principalsCount" value="${fn:length(principals)}"/>
-    <c:set var="principalsFound" value="${principalsCount > 0}"/>
-
-    <table class="table table-bordered table-striped table-hover">
-        <thead>
-        <tr>
-            <th width="2%"><input type="checkbox" name="selectedAllMembers" id="cbSelectedAllMembers"/></th>
-            <th><fmt:message key="label.name"/></th>
-            <th width="43%" class="sortable"><fmt:message key="label.properties"/></th>
-            <c:if test="${multipleProvidersAvailable}">
-                <th width="10%"><fmt:message key="column.provider.label"/></th>
-            </c:if>
-        </tr>
-        </thead>
-        <tbody>
-        <c:choose>
-            <c:when test="${!principalsFound}">
-                <tr>
-                    <td colspan="${multipleProvidersAvailable ? '4' : '3'}"><fmt:message key="label.noItemFound"/></td>
-                </tr>
-            </c:when>
-            <c:otherwise>
-                <c:forEach items="${principals}" var="principal" end="${userDisplayLimit - 1}" varStatus="loopStatus">
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+            <tr>
+                <th width="2%">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="selectedAllMembers" id="cbSelectedAllMembers"/>
+                        </label>
+                    </div>
+                </th>
+                <th><fmt:message key="label.name"/></th>
+                <th width="43%" class="sortable"><fmt:message key="label.properties"/></th>
+                <c:if test="${multipleProvidersAvailable}">
+                    <th width="10%"><fmt:message key="column.provider.label"/></th>
+                </c:if>
+            </tr>
+            </thead>
+            <tbody>
+            <c:choose>
+                <c:when test="${!principalsFound}">
                     <tr>
-                        <td><input onchange="selectMember(this)" class="selectedMember" type="checkbox" name="selectedMembers" value="${principal.key.userKey}" ${principal.value ? 'checked="checked"' : ''}/> </td>
-                        <td>
-                            ${fn:escapeXml(user:displayName(principal.key))}
-                        </td>
-                        <td>${user:fullName(principal.key)}</td>
-
-                        <c:if test="${multipleProvidersAvailable}">
-                            <fmt:message var="i18nProviderLabel" key="providers.${principal.key.providerName}.label"/>
-                            <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? principal.key.providerName : i18nProviderLabel)}</td>
-                        </c:if>
+                        <td colspan="${multipleProvidersAvailable ? '4' : '3'}"><fmt:message key="label.noItemFound"/></td>
                     </tr>
-                </c:forEach>
-            </c:otherwise>
-        </c:choose>
-        </tbody>
-    </table>
+                </c:when>
+                <c:otherwise>
+                    <c:forEach items="${principals}" var="principal" end="${userDisplayLimit - 1}" varStatus="loopStatus">
+                        <tr>
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input onchange="selectMember(this)" class="selectedMember" type="checkbox" name="selectedMembers" value="${principal.key.userKey}" ${principal.value ? 'checked="checked"' : ''}/>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                ${fn:escapeXml(user:displayName(principal.key))}
+                            </td>
+                            <td>${user:fullName(principal.key)}</td>
+
+                            <c:if test="${multipleProvidersAvailable}">
+                                <fmt:message var="i18nProviderLabel" key="providers.${principal.key.providerName}.label"/>
+                                <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? principal.key.providerName : i18nProviderLabel)}</td>
+                            </c:if>
+                        </tr>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 

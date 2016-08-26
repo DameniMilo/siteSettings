@@ -22,63 +22,72 @@
 
 <c:set var="prefix" value="g:"/>
 <c:set var="displayGroups" value="selected"/>
-<%@include file="common/editMembersHead.jspf" %>
-<template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js"/>
+
+<template:addResources type="javascript" resources="jquery.min.js,datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js,dataTables.serverSettings.js"/>
 <template:addResources type="css" resources="datatables/css/bootstrap-theme.css,tablecloth.css"/>
+
 <template:addResources>
     <script type="text/javascript">
+        var oldStart = 0;
+        function fnDrawCallback(o) {
+            // auto scroll to top on paginate
+            if ( o._iDisplayStart != oldStart ) {
+                var targetOffset = $('#groupMemberships').offset().top;
+                $('html,body').animate({scrollTop: targetOffset}, 350);
+                oldStart = o._iDisplayStart;
+            }
+        }
+
         $(document).ready(function () {
-            var oldStart = 0;
-            $('#groupMemberships').dataTable({
-                "sDom": "<'row-fluid'<'span6'l><'span6'<'refresh_modules'>f>r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "iDisplayLength": 25,
-                "sPaginationType": "bootstrap",
-                "aaSorting": [], //this option disable sort by default, the user steal can use column names to sort the table
-                "fnDrawCallback": function (o) {
-                    // auto scroll to top on paginate
-                    if ( o._iDisplayStart != oldStart ) {
-                        var targetOffset = $('#groupMemberships').offset().top;
-                        $('html,body').animate({scrollTop: targetOffset}, 350);
-                        oldStart = o._iDisplayStart;
-                    }
-                }
-            });
+            dataTablesServerSettings.init('groupMemberships', 25, [], fnDrawCallback);
         });
     </script>
 </template:addResources>
 
-<form action="${flowExecutionUrl}" method="post" id="saveForm">
-    <input id="addedMembers" type="hidden" name="addedMembers"/>
-    <input id="removedMembers" type="hidden" name="removedMembers"/>
-    <button class="btn btn-primary" type="submit" name="_eventId_save" id="saveButton" disabled="disabled">
-        <i class="icon-ok icon-white"></i>
-        &nbsp;<fmt:message key="label.save"/>
-    </button>
-</form>
+<div class="page-header">
+    <h2><fmt:message key="label.group"/>: ${fn:escapeXml(user:displayName(group))}</h2>
+</div>
 
-<div>
-    <c:set var="principalsCount" value="${fn:length(principals)}"/>
-    <c:set var="principalsFound" value="${principalsCount > 0}"/>
+<div class="panel panel-default">
+    <div class="panel-body">
 
-    <table class="table table-bordered table-striped table-hover" id="groupMemberships">
-        <thead>
-        <tr>
-            <th width="2%"><input type="checkbox" name="selectedAllMembers" id="cbSelectedAllMembers"/></th>
-            <th><fmt:message key="label.name"/></th>
-            <c:if test="${multipleProvidersAvailable}">
-                <th width="10%"><fmt:message key="column.provider.label"/></th>
-            </c:if>
-        </tr>
-        </thead>
-        <tbody>
-        <c:choose>
-            <c:when test="${!principalsFound}">
+        <%@include file="common/editMembersHead.jspf" %>
+
+        <div class="row">
+            <div class="col-md-12">
+                <form action="${flowExecutionUrl}" method="post" id="saveForm">
+                    <input id="addedMembers" type="hidden" name="addedMembers"/>
+                    <input id="removedMembers" type="hidden" name="removedMembers"/>
+                    <button class="btn btn-primary btn-sm pull-right" type="submit" name="_eventId_save" id="saveButton" disabled="disabled">
+                        <i class="material-icons">save</i>
+                        <fmt:message key="label.save"/>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <c:set var="principalsCount" value="${fn:length(principals)}"/>
+        <c:set var="principalsFound" value="${principalsCount > 0}"/>
+
+        <table class="table table-bordered table-striped table-hover" id="groupMemberships">
+            <thead>
                 <tr>
-                    <td colspan="${multipleProvidersAvailable ? '3' : '2'}"><fmt:message key="label.noItemFound"/></td>
+                    <th width="2%" class="{sorter: false}">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="selectedAllMembers" id="cbSelectedAllMembers" style="display: none;"/>
+                            </label>
+                        </div>
+                    </th>
+                    <th><fmt:message key="label.name"/></th>
+                    <c:if test="${multipleProvidersAvailable}">
+                        <th width="10%"><fmt:message key="column.provider.label"/></th>
+                    </c:if>
                 </tr>
-            </c:when>
-            <c:otherwise>
-                <c:forEach items="${principals}" var="principal" varStatus="loopStatus">
+            </thead>
+            <tbody>
+            <c:choose>
+                <c:when test="${!principalsFound}">
                     <tr>
                         <td><input onchange="selectMember(this)" class="selectedMember" type="checkbox" name="selectedMembers" value="${principal.key.groupKey}" ${principal.value ? 'checked="checked"' : ''}/> </td>
                         <td>
@@ -89,11 +98,33 @@
                             <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? principal.key.providerName : i18nProviderLabel)}</td>
                         </c:if>
                     </tr>
-                </c:forEach>
-            </c:otherwise>
-        </c:choose>
-        </tbody>
-    </table>
+                </c:when>
+                <c:otherwise>
+                    <c:forEach items="${principals}" var="principal" varStatus="loopStatus">
+                        <tr>
+                            <td>
+                                <div class="checkbox">
+                                    <label>
+                                        <input onchange="selectMember(this)" class="selectedMember"
+                                               type="checkbox" name="selectedMembers" style="display: none;"
+                                               value="${principal.groupKey}" ${functions:contains(members, principal) ? 'checked="checked"' : ''}/>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                    ${fn:escapeXml(user:displayName(principal))}
+                            </td>
+                            <c:if test="${multipleProvidersAvailable}">
+                                <fmt:message var="i18nProviderLabel" key="providers.${principal.providerName}.label"/>
+                                <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? principal.providerName : i18nProviderLabel)}</td>
+                            </c:if>
+                        </tr>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 

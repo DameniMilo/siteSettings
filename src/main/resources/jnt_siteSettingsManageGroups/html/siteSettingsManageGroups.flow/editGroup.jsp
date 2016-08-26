@@ -21,8 +21,8 @@
 
 <c:set var="memberDisplayLimit" value="${functions:default(fn:escapeXml(displayLimit), siteSettingsProperties.memberDisplayLimit)}"/>
 
-<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,jquery.blockUI.js,workInProgress.js,admin-bootstrap.js"/>
-<template:addResources type="css" resources="admin-bootstrap.css,jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css"/>
+<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,jquery.blockUI.js,workInProgress.js"/>
+<template:addResources type="css" resources="jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css"/>
 <fmt:message key="label.workInProgressTitle" var="i18nWaiting"/><c:set var="i18nWaiting" value="${functions:escapeJavaScript(i18nWaiting)}"/>
 
 <fmt:message var="i18nRemoveMultipleConfirm" key="siteSettings.groups.removeMembers.confirm"/>
@@ -31,57 +31,62 @@
 <c:set var="isGroupEditable" value="${!group.properties['j:external'].boolean}"/>
 
 <c:if test="${isGroupEditable}">
-<template:addResources>
-<script type="text/javascript">
-function removeGroupMember(confirmMsg, member) {
-	if (confirm(confirmMsg)) {
-		$.each($(':checkbox[name=selectedMembers]'), function() {
-			this.checked=$(this).val() == member;
-		});
-		workInProgress('${i18nWaiting}');
-		return true;
-	} else {
-		return false;
-	}
-}
-function removeMultipleGroupMembers() {
-	if ($('input:checked[name=selectedMembers]').length == 0) {
-		<fmt:message var="i18nRemoveMultipleNothingSelected" key="siteSettings.groups.removeMembers.nothingSelected"/>
-		alert('${functions:escapeJavaScript(i18nRemoveMultipleNothingSelected)}');
-		return false;
-	}
-	if (confirm('${functions:escapeJavaScript(i18nRemoveMultipleConfirm)}' + ' ' + '${functions:escapeJavaScript(i18nContinue)}')) {
-		workInProgress('${i18nWaiting}');
-		return true;
-	}
-	return false;
-}
-$(document).ready(function() {
-	$('#btnNewMembersReset').click(function() {
-		$('#newMembersTableBody tr').remove();
-		newMembersArray=new Array();
-		$('#newMembers').hide();
-		return false;
-	});
-	$(':checkbox[name="selectedMembers"]').click(function() {
-		if (!this.checked) {
-			$.each($('#cbSelectedAllMembers'), function() {
-				this.checked = false;
-			}) 
-		}
-	})
-	$('#cbSelectedAllMembers').click(function() {
-		var state=this.checked;
-		$.each($(':checkbox[name="selectedMembers"]'), function() {
-			this.checked=state;
-		}); 
-	});
-})
-</script>
-</template:addResources>
+    <template:addResources>
+        <script type="text/javascript">
+            function removeGroupMember(confirmMsg, member) {
+                if (confirm(confirmMsg)) {
+                    $.each($(':checkbox[name=selectedMembers]'), function() {
+                        this.checked=$(this).val() == member;
+                    });
+                    workInProgress('${i18nWaiting}');
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            function removeMultipleGroupMembers() {
+                if ($('input:checked[name=selectedMembers]').length == 0) {
+                    <fmt:message var="i18nRemoveMultipleNothingSelected" key="siteSettings.groups.removeMembers.nothingSelected"/>
+                    $.snackbar({
+                        content: "${functions:escapeJavaScript(i18nRemoveMultipleNothingSelected)}",
+                        style: "warning"
+                    });
+                    return false;
+                }
+                if (confirm('${functions:escapeJavaScript(i18nRemoveMultipleConfirm)}' + ' ' + '${functions:escapeJavaScript(i18nContinue)}')) {
+                    workInProgress('${i18nWaiting}');
+                    return true;
+                }
+                return false;
+            }
+            $(document).ready(function() {
+                $('#btnNewMembersReset').click(function() {
+                    $('#newMembersTableBody tr').remove();
+                    newMembersArray=new Array();
+                    $('#newMembers').hide();
+                    return false;
+                });
+                $(':checkbox[name="selectedMembers"]').click(function() {
+                    if (!this.checked) {
+                        $.each($('#cbSelectedAllMembers'), function() {
+                            this.checked = false;
+                        })
+                    }
+                });
+                $('#cbSelectedAllMembers').click(function() {
+                    var state=this.checked;
+                    $.each($(':checkbox[name="selectedMembers"]'), function() {
+                        this.checked=state;
+                    });
+                });
+            })
+        </script>
+    </template:addResources>
 </c:if>
 
-<h2><fmt:message key="label.group"/>: ${fn:escapeXml(user:displayName(group))}</h2>
+<div class="page-header">
+    <h2><fmt:message key="label.group"/>: ${fn:escapeXml(user:displayName(group))}</h2>
+</div>
 
 <c:set var="multipleProvidersAvailable" value="${fn:length(providers) > 1}"/>
 <c:set var="members" value="${group.members}"/>
@@ -94,91 +99,93 @@ $(document).ready(function() {
 
 <c:set var="membersFound" value="${memberCount > 0}"/>
 
-<form action="${flowExecutionUrl}" method="POST" style="display: inline;">
-<div>
-    <div>
-        <button class="btn" type="submit" name="_eventId_cancel">
-            <i class="icon-arrow-left"></i>
-            &nbsp;<fmt:message key="label.backToGroupList"/>
-        </button>
-
-        <c:if test="${isGroupEditable}">
-            <button class="btn" type="submit" name="_eventId_editGroupMembers" >
-                <i class="icon-ok"></i>
-                &nbsp;<fmt:message key="siteSettings.groups.editMembers"/>
-            </button>
-
-            <c:if test="${membersFound}">
-                <button class="btn" type="submit" name="_eventId_removeMembers" onclick="return removeMultipleGroupMembers();">
-                    <i class="icon-remove"></i>
-                    &nbsp;<fmt:message key="siteSettings.groups.removeMembers"/>
-                </button>
-            </c:if>
-        </c:if>
-
-    </div>
-    
-    <c:if test="${isGroupEditable}">
-    <p>
-        <c:forEach items="${flowRequestContext.messageContext.allMessages}" var="message">
+<c:if test="${isGroupEditable}">
+    <c:forEach items="${flowRequestContext.messageContext.allMessages}" var="message">
         <c:if test="${message.severity eq 'INFO'}">
-        <div class="alert alert-success">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                ${message.text}
-        </div>
-        </c:if>
-        <c:if test="${message.severity eq 'ERROR'}">
-            <div class="alert alert-error">
+            <div class="alert alert-success">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                     ${message.text}
             </div>
         </c:if>
-        </c:forEach>
-    </p>
-    </c:if>
-
-    <div>
-        <h2><fmt:message key="members.label"/><c:if test="${isGroupEditable}"> (${memberCount})</c:if></h2>
-        <c:if test="${memberCount > memberDisplayLimit}">
-            <div class="alert alert-info">
-                <c:if test="${isGroupEditable}">
-                <fmt:message key="siteSettings.groups.members.found">
-                    <fmt:param value="${memberCount}"/>
-                </fmt:message>
-                </c:if>
-                <fmt:message key="siteSettings.groups.first.shown">
-                    <fmt:param value="${memberDisplayLimit}"/>
-                </fmt:message>
-                <input type="hidden" id="memberFormDisplayLimit" name="displayLimit" value="<%= Integer.MAX_VALUE %>" />
-                <button class="btn" type="submit" name="_eventId_refresh">
-                    <i class="icon-search"></i>
-                    &nbsp;<fmt:message key="siteSettings.groups.members.showAll"/>
-                </button>
-                <c:if test="${memberCount > 100}">
-                 - <fmt:message key="siteSettings.groups.members.showAll.notice"/>
-                </c:if>
+        <c:if test="${message.severity eq 'ERROR'}">
+            <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    ${message.text}
             </div>
         </c:if>
-        
-        <table class="table table-bordered table-striped table-hover">
-            <thead>
-            <tr>
-                <c:if test="${isGroupEditable}">
-                <th width="2%"><input type="checkbox" name="selectedAllMembers" id="cbSelectedAllMembers"/></th>
+    </c:forEach>
+</c:if>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form action="${flowExecutionUrl}" method="POST" style="display: inline;">
+
+            <button class="btn btn-default btn-sm" type="submit" name="_eventId_cancel">
+                <i class="material-icons">arrow_back</i>
+                <fmt:message key="label.backToGroupList"/>
+            </button>
+
+            <c:if test="${isGroupEditable}">
+                <button class="btn btn-default btn-sm" type="submit" name="_eventId_editGroupMembers" >
+                    <i class="material-icons">edit</i>
+                    <fmt:message key="siteSettings.groups.editMembers"/>
+                </button>
+
+                <c:if test="${membersFound}">
+                    <button class="btn btn-danger btn-sm" type="submit" name="_eventId_removeMembers" onclick="return removeMultipleGroupMembers();">
+                        <i class="material-icons">delete</i>
+                        <fmt:message key="siteSettings.groups.removeMembers"/>
+                    </button>
                 </c:if>
-                <th width="3%">#</th>
-                <th width="3%">&nbsp;</th>
-                <th><fmt:message key="label.name"/></th>
-                <th><fmt:message key="label.properties"/></th>
-                <c:if test="${multipleProvidersAvailable}">
-                    <th width="10%"><fmt:message key="column.provider.label"/></th>
-                </c:if>
-                <c:if test="${isGroupEditable}">
-                <th width="20%"><fmt:message key="label.actions"/></th>
-                </c:if>
-            </tr>
-            </thead>
-            <tbody>
+            </c:if>
+
+            <h4><fmt:message key="members.label"/> <c:if test="${isGroupEditable}">(${memberCount})</c:if></h4>
+            <c:if test="${memberCount > memberDisplayLimit}">
+                <div class="alert alert-info">
+                    <c:if test="${isGroupEditable}">
+                        <fmt:message key="siteSettings.groups.members.found">
+                            <fmt:param value="${memberCount}"/>
+                        </fmt:message>
+                    </c:if>
+                    <fmt:message key="siteSettings.groups.first.shown">
+                        <fmt:param value="${memberDisplayLimit}"/>
+                    </fmt:message>
+                    <input type="hidden" id="memberFormDisplayLimit" name="displayLimit" value="<%= Integer.MAX_VALUE %>" />
+                    <button class="btn btn-default btn-sm" type="submit" name="_eventId_refresh">
+                        <i class="material-icons">search</i>
+                        <fmt:message key="siteSettings.groups.members.showAll"/>
+                    </button>
+                    <c:if test="${memberCount > 100}">
+                        - <fmt:message key="siteSettings.groups.members.showAll.notice"/>
+                    </c:if>
+                </div>
+            </c:if>
+
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr>
+                        <c:if test="${isGroupEditable}">
+                            <th width="2%">
+                                <div class="checkbox">
+                                    <label for="cbSelectedAllMembers">
+                                        <input type="checkbox" name="selectedAllMembers" id="cbSelectedAllMembers"/>
+                                    </label>
+                                </div>
+                            </th>
+                        </c:if>
+                        <th width="3%">#</th>
+                        <th width="3%">&nbsp;</th>
+                        <th><fmt:message key="label.name"/></th>
+                        <th><fmt:message key="label.properties"/></th>
+                        <c:if test="${multipleProvidersAvailable}">
+                            <th width="10%"><fmt:message key="column.provider.label"/></th>
+                        </c:if>
+                        <c:if test="${isGroupEditable}">
+                            <th width="20%"><fmt:message key="label.actions"/></th>
+                        </c:if>
+                    </tr>
+                </thead>
+                <tbody>
                 <c:choose>
                     <c:when test="${!membersFound}">
                         <tr>
@@ -193,9 +200,13 @@ $(document).ready(function() {
                             <c:set var="principalKey" value="${principalType}:${principalType == 'u' ? member.userKey : member.groupKey}"/>
                             <tr>
                                 <c:if test="${isGroupEditable}">
-                                <td>
-                                    <input type="checkbox" name="selectedMembers" value="${principalKey}"/>
-                                </td>
+                                    <td>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" name="selectedMembers" value="${principalKey}"/>
+                                            </label>
+                                        </div>
+                                    </td>
                                 </c:if>
                                 <td>
                                     ${loopStatus.count}
@@ -214,23 +225,22 @@ $(document).ready(function() {
                                     <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? member.providerName : i18nProviderLabel)}</td>
                                 </c:if>
                                 <c:if test="${isGroupEditable}">
-                                <td>
-                                    <fmt:message var="i18RemoveConfirm" key="siteSettings.groups.removeMember.confirm">
-                                        <fmt:param value="${fn:escapeXml(member.name)}"/>
-                                    </fmt:message>
-                                    <button style="margin-bottom:0;" class="btn btn-danger btn-small" type="submit" name="_eventId_removeMembers"
-                                        onclick="return removeGroupMember('${functions:escapeJavaScript(i18RemoveConfirm)}' + ' ' + '${functions:escapeJavaScript(i18nContinue)}', '${principalKey}')">
-                                        <i class="icon-remove icon-white"></i>
-                                    </button>
-                                </td>
+                                    <td>
+                                        <fmt:message var="i18RemoveConfirm" key="siteSettings.groups.removeMember.confirm">
+                                            <fmt:param value="${fn:escapeXml(member.name)}"/>
+                                        </fmt:message>
+                                        <button style="margin-bottom:0;" class="btn btn-danger btn-fab btn-fab-xs" type="submit" name="_eventId_removeMembers"
+                                                onclick="return removeGroupMember('${functions:escapeJavaScript(i18RemoveConfirm)}' + ' ' + '${functions:escapeJavaScript(i18nContinue)}', '${principalKey}')">
+                                            <i class="material-icons">delete</i>
+                                        </button>
+                                    </td>
                                 </c:if>
                             </tr>
                         </c:forEach>
                     </c:otherwise>
                 </c:choose>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </form>
     </div>
 </div>
-
-</form>
