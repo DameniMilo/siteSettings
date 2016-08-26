@@ -145,6 +145,7 @@
                                 j:priority="100"
                                 j:requiredPermissionNames="siteAdminLanguages"
                                 j:titleKey="siteSettings.label.manageLanguages"
+                                j:view="siteSettingsBootstrap3GoogleMaterialStyle"
                                 jcr:mixinTypes="jmix:rbTitle"
                                 jcr:primaryType="jnt:contentTemplate">
                             <pagecontent jcr:primaryType="jnt:contentList">
