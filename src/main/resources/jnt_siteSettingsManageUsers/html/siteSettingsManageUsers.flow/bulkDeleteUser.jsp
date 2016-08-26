@@ -18,13 +18,13 @@
 <%--@elvariable id="mailSettings" type="org.jahia.services.mail.MailSettings"--%>
 <%--@elvariable id="flowRequestContext" type="org.springframework.webflow.execution.RequestContext"--%>
 <%--@elvariable id="flowExecutionUrl" type="java.lang.String"--%>
-<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,admin-bootstrap.js,jquery.metadata.js,jquery.tablesorter.js,jquery.tablecloth.js"/>
-<template:addResources type="css" resources="admin-bootstrap.css"/>
-<template:addResources type="css" resources="jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css,tablecloth.css"/>
-<div>
-    <h2><fmt:message key="label.remove"/></h2>
 
-    <div class="box-1">
+<div class="page-header">
+    <h2><fmt:message key="label.remove"/></h2>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
         <form action="${flowExecutionUrl}" method="post">
             <table class="table table-bordered table-striped table-hover">
                 <thead>
@@ -50,7 +50,11 @@
                         <c:forEach items="${usersToDelete}" var="curUser">
                             <tr class="sortable-row">
                                 <td>
-                                    <input type="checkbox" name="userToDelete" value="${fn:escapeXml(curUser.userKey)}" class="userCheckbox" readonly="readonly" checked="checked">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="userToDelete" value="${fn:escapeXml(curUser.userKey)}" class="userCheckbox" readonly="readonly" checked="checked">
+                                        </label>
+                                    </div>
                                 </td>
                                 <td>${user:displayName(curUser)}</td>
                                 <td>${user:fullName(curUser)}</td>
@@ -64,24 +68,18 @@
                 </c:choose>
                 </tbody>
             </table>
-            <fieldset>
-                <div class="container-fluid">
-                    <div class="row-fluid">
-                        <div class="span12">
-                            <c:if test="${!userProperties.readOnly}">
-                                <button class="btn btn-danger" type="submit" name="_eventId_confirm" onclick="workInProgress('${i18nWaiting}'); return true;">
-                                    <i class="icon-remove icon-white"></i>
-                                    &nbsp;<fmt:message key="label.remove"/>
-                                </button>
-                            </c:if>
-                            <button class="btn" type="submit" name="_eventId_cancel">
-                                <i class="icon-ban-circle"></i>
-                                &nbsp;<fmt:message key="label.cancel"/>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
+
+            <button class="btn btn-sm btn-default" type="submit" name="_eventId_cancel">
+                <i class="material-icons">cancel</i>
+                <fmt:message key="label.cancel"/>
+            </button>
+
+            <c:if test="${!userProperties.readOnly}">
+                <button class="btn btn-danger btn-sm pull-right" type="submit" name="_eventId_confirm" onclick="workInProgress('${i18nWaiting}'); return true;">
+                    <i class="material-icons">delete</i>
+                    <fmt:message key="label.remove"/>
+                </button>
+            </c:if>
         </form>
     </div>
 </div>

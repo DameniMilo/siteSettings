@@ -218,6 +218,7 @@
                             j:priority="100"
                             j:requiredPermissionNames="siteAdminUsers"
                             j:titleKey="siteSettings.manageUsers"
+                            j:view="siteSettingsBootstrap3GoogleMaterialStyle"
                             jcr:mixinTypes="jmix:rbTitle"
                             jcr:primaryType="jnt:contentTemplate">
                             <pagecontent jcr:primaryType="jnt:contentList">

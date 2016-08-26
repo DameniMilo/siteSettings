@@ -54,31 +54,11 @@
                 </div>
             </div>
 
-
-            <div class="form-group form-group-sm">
-                <span><fmt:message key="label.on"/></span>
-                <div class="radio">
-                    <label class="radio-inline">
-                        <input type="radio" name="storedOn" value="everywhere">
-                        <fmt:message key="label.everyWhere"/>
-                    </label>
-                </div>
-
-                <div class="radio">
-                    <label class="radio-inline">
-                        <input type="radio" name="storedOn" value="providers">
-                        <fmt:message key="label.providers"/>
-                    </label>
-                </div>
-            </div>
-
             <c:if test="${multipleProvidersAvailable}">
                 <div class="form-group form-group-sm">
-                    <label for="storedOn">
-                        <span class="label label-info"><fmt:message key="label.on"/></span>
-                    </label>
+                    <span><fmt:message key="label.on"/></span>
                     <div class="radio">
-                        <label class="radio-inline">
+                        <label for="storedOn" class="radio-inline">
                             <input type="radio" name="storedOn" value="everywhere"
                                 ${empty memberSearchCriteria.storedOn || memberSearchCriteria.storedOn == 'everywhere' ? ' checked="checked" ' : ''}
                                    onclick="$('.provCheck').attr('disabled',true);">
@@ -87,7 +67,7 @@
                     </div>
 
                     <div class="radio">
-                        <label class="radio-inline">
+                        <label for="storedOn" class="radio-inline">
                             <input type="radio" name="storedOn" value="providers"
                                 ${memberSearchCriteria.storedOn == 'providers' ? 'checked="checked"' : ''}
                                    onclick="$('.provCheck').removeAttr('disabled');"/>

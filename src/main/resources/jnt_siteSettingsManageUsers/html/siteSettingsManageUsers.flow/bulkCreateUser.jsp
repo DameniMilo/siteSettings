@@ -17,19 +17,19 @@
 <%--@elvariable id="mailSettings" type="org.jahia.services.mail.MailSettings"--%>
 <%--@elvariable id="flowRequestContext" type="org.springframework.webflow.execution.RequestContext"--%>
 <%--@elvariable id="flowExecutionUrl" type="java.lang.String"--%>
-<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,jquery.blockUI.js,workInProgress.js,admin-bootstrap.js,bootstrap-filestyle.min.js"/>
-<template:addResources type="css" resources="jquery-ui.smoothness.css,jquery-ui.smoothness-jahia.css"/>
+<template:addResources type="javascript" resources="jquery.min.js,jquery-ui.min.js,jquery.blockUI.js,workInProgress.js"/>
 <fmt:message key="label.workInProgressTitle" var="i18nWaiting"/><c:set var="i18nWaiting" value="${functions:escapeJavaScript(i18nWaiting)}"/>
 <template:addResources>
     <script type="text/javascript">
         $(document).ready(function() {
             $('#${currentNode.identifier}-confirm').click(function() {workInProgress('${i18nWaiting}');});
         });
-        $(document).ready(function () {
-            $(":file").filestyle({classButton: "btn",classIcon: "icon-folder-open"/*,buttonText:"Translation"*/});
-        });
     </script>
 </template:addResources>
+
+<div class="page-header">
+    <h2><fmt:message key="siteSettings.users.bulk.create"/></h2>
+</div>
 
 <c:forEach items="${flowRequestContext.messageContext.allMessages}" var="message">
     <c:if test="${message.severity eq 'ERROR'}">
@@ -45,31 +45,44 @@
         </div>
     </c:if>
 </c:forEach>
-<h2><fmt:message key="siteSettings.users.bulk.create"/></h2>
-<div class="box-1">
-    <form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data" autocomplete="off">
 
-            <fieldset>
+<div class="row">
+    <div class="col-md-offset-2 col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+
                 <div class="alert alert-info">
-                    <label for="csvFile"><fmt:message key="label.csvFile"/> <span class="text-error"><strong>*</strong></span></label>
-                    <input type="file" name="csvFile" id="csvFile"/>
+                    <fmt:message key="siteSettings.users.batch.file.format"/>
                 </div>
-                <label for="csvSeparator"><fmt:message key="label.csvSeparator"/></label>
-                <input class="span6" type="text" name="csvSeparator" value="${csvFile.csvSeparator}" id="csvSeparator"/>
-            </fieldset>
 
-        <fieldset>
-            <button class="btn btn-primary" type="submit" name="_eventId_confirm" id="${currentNode.identifier}-confirm">
-                <i class="icon-ok icon-white"></i>
-                &nbsp;<fmt:message key='label.ok'/>
-            </button>
-            <button class="btn" type="submit" name="_eventId_cancel">
-                <i class="icon-ban-circle"></i>
-                &nbsp;<fmt:message key='label.cancel'/>
-            </button>
-        </fieldset>
-    </form>
-    <p>
-        <fmt:message key="siteSettings.users.batch.file.format"/>
-    </p>
+                <form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <div class="form-group form-group-sm label-floating is-fileinput">
+                        <input type="file" name="csvFile" id="csvFile"/>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="material-icons material-icons-small">touch_app</i></span>
+                            <label class="control-label" for="csvFile"><fmt:message key="label.csvFile"/> <strong class="text-danger">*</strong></label>
+                            <input class="form-control" type="text" readonly>
+                        </div>
+                        <span class="material-input"></span>
+                    </div>
+
+                    <div class="form-group form-group-sm label-floating">
+                        <label class="control-label" for="csvSeparator"><fmt:message key="label.csvSeparator"/></label>
+                        <input class="form-control" type="text" name="csvSeparator" value="${csvFile.csvSeparator}" id="csvSeparator"/>
+                    </div>
+
+                    <div class="form-group form-group-sm">
+                        <button class="btn btn-default btn-sm" type="submit" name="_eventId_cancel">
+                            <i class="material-icons">cancel</i>
+                            <fmt:message key='label.cancel'/>
+                        </button>
+                        <button class="btn btn-primary btn-sm pull-right" type="submit" name="_eventId_confirm" id="${currentNode.identifier}-confirm">
+                            <i class="material-icons">group_add</i>
+                            <fmt:message key='label.ok'/>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
