@@ -17,60 +17,71 @@
 <c:set var="isEmpty" value="true"/>
 <c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
 <template:addResources type="javascript" resources="jquery.min.js"/>
-<template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js"/>
-<template:addResources type="css" resources="datatables/css/bootstrap-theme.css,tablecloth.css"/>
+<template:addResources type="javascript" resources="datatables/jquery.dataTables.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.bootstrap-ext.js,dataTables.serverSettings.js"/>
+<template:addResources type="css" resources="datatables/css/bootstrap-theme.css"/>
 
 <template:addResources>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#vanityUrlTable').dataTable({
-                "sDom": "<'row-fluid'<'span6'l><'span6'<'refresh_modules'>f>r>t<'row-fluid'<'span6'i><'span6'p>>",
-                "iDisplayLength": 25,
-                "sPaginationType": "bootstrap",
-                "aaSorting": [], //this option disable sort by default, the user steal can use column names to sort the table
-                "bStateSave": true
-            });
+            dataTablesServerSettings.init('vanityUrlTable', 25, [], true, null);
          });
     </script>
 </template:addResources>
 
-<h2><fmt:message key="siteSettings.label.vanityURLSettings"/> - ${fn:escapeXml(site.displayableName)}</h2>
+<div class="page-header">
+    <h2><fmt:message key="siteSettings.label.vanityURLSettings"/> - ${fn:escapeXml(site.displayableName)}</h2>
+</div>
 
-<form class="form-inline" action="<c:url value='${url.base}${renderContext.mainResource.node.path}.vanityURLSetting.html'/>">
-    <label for="vanityUrlSearch"><fmt:message key='label.urlmapping.filter'/></label>
-    <input type="text" id="vanityUrlSearch" name="vanityUrlSearch" value="${param['vanityUrlSearch']}" />
-    <button class="btn btn-primary" type="submit"><i class="icon-filter icon-white"></i> <fmt:message key="filters.label"/></button>
-</form>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form class="form-inline" action="<c:url value='${url.base}${renderContext.mainResource.node.path}.vanityURLSetting.html'/>">
+            <div class="form-group form-group-sm label-floating">
+                <label class="control-label" for="vanityUrlSearch">
+                    <fmt:message key='label.urlmapping.filter'/>
+                </label>
+                <div class="input-group">
+                    <input class="form-control" type="text" id="vanityUrlSearch" name="vanityUrlSearch" value="${param['vanityUrlSearch']}" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary btn-sm" type="submit">
+                            <i class="material-icons">filter_list</i>
+                            <fmt:message key="filters.label"/>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </form>
 
-<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="vanityUrlTable">
-    <thead>
-        <tr>
-            <th><fmt:message key='label.urlmapping.mapping'/></th>
-            <th><fmt:message key='label.page'/></th>
-            <th><fmt:message key='label.urlmapping.lang'/></th>
-            <th><fmt:message key='label.urlmapping.active'/></th>
-            <th><fmt:message key='label.urlmapping.default'/></th>
-        </tr>
-    </thead>
-    <tbody>
-    <jsp:useBean id="vanityNodesID" class="java.util.HashMap" type="java.util.HashMap"/>
-        <c:forEach items="${moduleMap.currentList}" var="subchild" begin="${moduleMap.begin}" end="${moduleMap.end}"
-                   varStatus="status">
-            <c:if test="${empty vanityNodesID[subchild.parent.identifier]}">
-            <tr class="${status.index % 2 == 0 ? 'evenLine' : 'oddLine'}">
-                <template:module node="${subchild}" view="${moduleMap.subNodesView}"
-                                 editable="${moduleMap.editable && !resourceReadOnly}"/>
-            </tr>
-            <c:set var="isEmpty" value="false"/>
-                <c:set target="${vanityNodesID}" property="${subchild.parent.identifier}" value="${subchild.parent.identifier}"/>
-            </c:if>
-        </c:forEach>
-    </tbody>
-</table>
-<c:if test="${not omitFormatting}">
-    <div class="clear"></div>
-</c:if>
-<c:if test="${not empty moduleMap.emptyListMessage and (renderContext.editMode or moduleMap.forceEmptyListMessageDisplay) and isEmpty}">
-    <div class="alert alert-info">${moduleMap.emptyListMessage}</div>
-</c:if>
-<template:include view="hidden.footer"/>
+        <table class="table table-striped table-bordered" id="vanityUrlTable">
+            <thead>
+                <tr>
+                    <th><fmt:message key='label.urlmapping.mapping'/></th>
+                    <th><fmt:message key='label.page'/></th>
+                    <th><fmt:message key='label.urlmapping.lang'/></th>
+                    <th><fmt:message key='label.urlmapping.active'/></th>
+                    <th><fmt:message key='label.urlmapping.default'/></th>
+                </tr>
+            </thead>
+            <tbody>
+            <jsp:useBean id="vanityNodesID" class="java.util.HashMap" type="java.util.HashMap"/>
+            <c:forEach items="${moduleMap.currentList}" var="subchild" begin="${moduleMap.begin}" end="${moduleMap.end}"
+                       varStatus="status">
+                <c:if test="${empty vanityNodesID[subchild.parent.identifier]}">
+                    <tr class="${status.index % 2 == 0 ? 'evenLine' : 'oddLine'}">
+                        <template:module node="${subchild}" view="${moduleMap.subNodesView}"
+                                         editable="${moduleMap.editable && !resourceReadOnly}"/>
+                    </tr>
+                    <c:set var="isEmpty" value="false"/>
+                    <c:set target="${vanityNodesID}" property="${subchild.parent.identifier}" value="${subchild.parent.identifier}"/>
+                </c:if>
+            </c:forEach>
+            </tbody>
+        </table>
+        <c:if test="${not omitFormatting}">
+            <div class="clear"></div>
+        </c:if>
+        <c:if test="${not empty moduleMap.emptyListMessage and (renderContext.editMode or moduleMap.forceEmptyListMessageDisplay) and isEmpty}">
+            <div class="alert alert-info">${moduleMap.emptyListMessage}</div>
+        </c:if>
+        <template:include view="hidden.footer"/>
+    </div>
+</div>

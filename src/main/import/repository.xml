@@ -186,6 +186,7 @@
                                  j:priority="100"
                                  j:requiredPermissionNames="siteAdminUrlmapping"
                                  j:titleKey="siteSettings.label.vanityURLSettings"
+                                 j:view="siteSettingsBootstrap3GoogleMaterialStyle"
                                  jcr:mixinTypes="jmix:rbTitle"
                                  jcr:primaryType="jnt:contentTemplate">
                             <pagecontent jcr:primaryType="jnt:contentList">

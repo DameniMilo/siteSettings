@@ -59,7 +59,7 @@ function submitGroupForm(act, group) {
             }
 
             $(document).ready(function () {
-                dataTablesServerSettings.init('manageGroups', 25, [], fnDrawCallback);
+                dataTablesServerSettings.init('manageGroups', 25, [], null, fnDrawCallback);
             });
         </script>
     </c:if>
