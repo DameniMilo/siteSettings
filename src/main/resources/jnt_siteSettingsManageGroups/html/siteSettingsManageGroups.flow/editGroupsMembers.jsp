@@ -107,16 +107,16 @@
                                     <label>
                                         <input onchange="selectMember(this)" class="selectedMember"
                                                type="checkbox" name="selectedMembers" style="display: none;"
-                                               value="${principal.groupKey}" ${functions:contains(members, principal) ? 'checked="checked"' : ''}/>
+                                               value="${principal.key.groupKey}" ${principal.value ? 'checked="checked"' : ''}/>
                                     </label>
                                 </div>
                             </td>
                             <td>
-                                    ${fn:escapeXml(user:displayName(principal))}
+                            ${fn:escapeXml(user:displayName(principal.key))}
                             </td>
                             <c:if test="${multipleProvidersAvailable}">
-                                <fmt:message var="i18nProviderLabel" key="providers.${principal.providerName}.label"/>
-                                <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? principal.providerName : i18nProviderLabel)}</td>
+                                <fmt:message var="i18nProviderLabel" key="providers.${principal.key.providerName}.label"/>
+                                <td>${fn:escapeXml(fn:contains(i18nProviderLabel, '???') ? principal.key.providerName : i18nProviderLabel)}</td>
                             </c:if>
                         </tr>
                     </c:forEach>
