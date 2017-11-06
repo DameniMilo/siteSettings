@@ -1,6 +1,6 @@
 angular.module('siteSetting', [])
-    .controller('languages', ['$scope', '$http', 'languagesConstants',
-        function ($scope, $http, languagesConstants) {
+    .controller('languages', ['$scope', '$http', '$timeout', 'languagesConstants',
+        function ($scope, $http, $timeout, languagesConstants) {
 
             // initialize scope data
             $scope.newLanguages = [];
@@ -109,6 +109,10 @@ angular.module('siteSetting', [])
 
                 // reset selection
                 $scope.newLanguages = [];
+
+                $timeout(function() {
+                    $.material.init();
+                }, 500);
             };
 
             /**
